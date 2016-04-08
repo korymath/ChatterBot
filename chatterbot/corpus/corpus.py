@@ -27,10 +27,13 @@ class Corpus(object):
         """
         Read and return the data from a corpus json file.
         """
-        import json
+        # import simplejson as json
+        # import json
+        # ultrajson is much faster for handling large files
+        import ultrajson as json
 
         with open(file_name) as data_file:
-            data = json.load(data_file)
+            data = json.load(data_file) 
         return data
 
     def load_corpus(self, dotted_path):

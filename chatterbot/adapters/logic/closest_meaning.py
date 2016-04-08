@@ -7,14 +7,6 @@ from chatterbot.utils.word_net import Wordnet
 
 
 class ClosestMeaningAdapter(BaseMatchAdapter):
-    """
-    This adapter selects a response by comparing the tokenized form of the
-    input statement's text, with the tokenized form of possible matching
-    statements. For each possible match, the sum of the Cartesian product of
-    the path similarity of each statement is compared. This process simulates
-    an evaluation of the closeness of synonyms. The known statement with the
-    greatest path similarity is then returned.
-    """
 
     def __init__(self, **kwargs):
         super(ClosestMeaningAdapter, self).__init__(**kwargs)
@@ -62,17 +54,11 @@ class ClosestMeaningAdapter(BaseMatchAdapter):
 
             if synset1 and synset2:
 
-                max_similarity = 0
+                # Compare the first synset in each list of synsets
+                similarity = synset1[0].path_similarity(synset2[0])
 
-                # Get the highest similarity for each combination of synsets
-                for synset in itertools.product(*[synset1, synset2]):
-                    similarity = synset[0].path_similarity(synset[1])
-
-                    if similarity and (similarity > max_similarity):
-                        max_similarity = similarity
-
-                # Add the most similar path value to the total
-                total_similarity += max_similarity
+                if similarity:
+                    total_similarity = total_similarity + similarity
 
         return total_similarity
 

@@ -17,7 +17,7 @@ class LogicAdapter(Adapter):
         """
         return True
 
-    def process(self, statement):
+    def process(self, statement, dig):
         """
         Method that takes an input statement and returns
         a confidence value and a statement as output.

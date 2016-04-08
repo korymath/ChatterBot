@@ -3,12 +3,8 @@ from chatterbot.utils.read_input import input_function
 
 
 class NoOutputAdapter(IOAdapter):
-    """
-    The NoOutputAdapter is a simple adapter that
-    doesn't display anything.
-    """
 
-    def process_input(self, *args, **kwargs):
+    def process_input(self):
         """
         Read the user's input from the terminal.
         """

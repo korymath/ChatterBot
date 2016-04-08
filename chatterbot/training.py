@@ -1,6 +1,6 @@
 from .conversation import Statement
 from .corpus import Corpus
-
+from tqdm import tqdm
 
 class Trainer(object):
 
@@ -9,6 +9,7 @@ class Trainer(object):
         self.corpus = Corpus()
 
     def train_from_list(self, conversation):
+
         recent_statements = []
 
         for text in conversation:
@@ -32,5 +33,5 @@ class Trainer(object):
         for corpus in corpora:
             corpus_data = self.corpus.load_corpus(corpus)
             for data in corpus_data:
-                for pair in data:
+                for pair in tqdm(data):
                     self.train_from_list(pair)

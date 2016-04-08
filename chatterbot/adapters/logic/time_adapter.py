@@ -5,9 +5,6 @@ from datetime import datetime
 
 
 class TimeLogicAdapter(LogicAdapter):
-    """
-    The TimeLogicAdapter returns the current time.
-    """
 
     def __init__(self, **kwargs):
         super(TimeLogicAdapter, self).__init__(**kwargs)

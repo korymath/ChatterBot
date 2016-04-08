@@ -8,3 +8,7 @@ settings.py
 *.pyc
 *.swp
 *.egg-info
+
+*.json
+
+*.txt

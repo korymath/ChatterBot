@@ -5,10 +5,6 @@ from jsondb import Database
 
 
 class JsonDatabaseAdapter(StorageAdapter):
-    """
-    The JsonDatabaseAdapter is an interface that allows ChatterBot
-    to store the conversation as a Json-encoded file.
-    """
 
     def __init__(self, **kwargs):
         super(JsonDatabaseAdapter, self).__init__(**kwargs)
@@ -34,18 +30,6 @@ class JsonDatabaseAdapter(StorageAdapter):
         values["in_response_to"] = response_list
 
         return Statement(statement_text, **values)
-
-    def remove(self, statement_text):
-        """
-        Removes the statement that matches the input text.
-        Removes any responses from statements if the response text matches the
-        input text.
-        """
-        for statement in self.filter(in_response_to__contains=statement_text):
-            statement.remove_response(statement_text)
-            self.update(statement)
-
-        self.database.delete(statement_text)
 
     def deserialize_responses(self, response_list):
         """

@@ -2,21 +2,15 @@ from .logic import LogicAdapter
 
 
 class MultiLogicAdapter(LogicAdapter):
-    """
-    MultiLogicAdapter allows ChatterBot to use multiple logic
-    adapters. It has methods that allow ChatterBot to add an
-    adapter, set the context, and process an input statement
-    to get a response.
-    """
 
     def __init__(self, **kwargs):
         super(MultiLogicAdapter, self).__init__(**kwargs)
 
         self.adapters = []
 
-    def process(self, statement):
+    def process(self, statement, hash_list):
         """
-        Returns the outout of a selection of logic adapters
+        Returns the output of a selection of logic adapters
         for a given input statement.
         """
         result = None
@@ -24,12 +18,11 @@ class MultiLogicAdapter(LogicAdapter):
 
         for adapter in self.adapters:
             if adapter.can_process(statement):
-                confidence, output = adapter.process(statement)
+                hash_list, confidence, output = adapter.process(statement, hash_list)
                 if confidence > max_confidence:
                     result = output
                     max_confidence = confidence
-
-        return max_confidence, result
+        return hash_list, max_confidence, result
 
     def add_adapter(self, adapter):
         self.adapters.append(adapter)

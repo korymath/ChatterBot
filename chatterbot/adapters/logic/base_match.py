@@ -1,7 +1,7 @@
 from chatterbot.adapters.exceptions import AdapterNotImplementedError
 from .logic import LogicAdapter
 from .mixins import TieBreaking
-
+import time
 
 class BaseMatchAdapter(TieBreaking, LogicAdapter):
     """
@@ -14,7 +14,7 @@ class BaseMatchAdapter(TieBreaking, LogicAdapter):
 
         self.tie_breaking_method = kwargs.get(
             "tie_breaking_method",
-            "first_response"
+            "random_response"
         )
 
     @property
@@ -26,7 +26,7 @@ class BaseMatchAdapter(TieBreaking, LogicAdapter):
 
     def get_available_statements(self, statement_list=None):
         from chatterbot.conversation.utils import get_response_statements
-
+        
         if statement_list:
             statement_list = get_response_statements(statement_list)
 
@@ -52,22 +52,22 @@ class BaseMatchAdapter(TieBreaking, LogicAdapter):
         """
         return self.has_storage_context and self.context.storage.count()
 
-    def process(self, input_statement):
-
+    def process(self, input_statement, hash_list):
         # Select the closest match to the input statement
-        confidence, closest_match = self.get(input_statement)
+        hash_list, confidence, closest_match = self.get(input_statement, hash_list, statement_list=None)
 
         # Save any updates made to the statement by the logic adapter
         self.context.storage.update(closest_match)
 
         # Get all statements that are in response to the closest match
-        response_list = self.context.storage.filter(
-            in_response_to__contains=closest_match.text
-        )
+        if closest_match:
+            response_list = self.context.storage.filter(in_response_to__contains=closest_match.text)
+        else:
+            response_list = self.context.storage.filter(in_response_to__contains='something went wrong')
 
         if response_list:
             response = self.break_tie(response_list, self.tie_breaking_method)
         else:
             response = self.context.storage.get_random()
 
-        return confidence, response
+        return hash_list, confidence, response

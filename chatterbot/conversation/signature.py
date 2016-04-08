@@ -2,9 +2,6 @@ import datetime
 
 
 class Signature(object):
-    """
-    Returns ChatterBot's signature.
-    """
 
     def __init__(self, name):
         self.name = name

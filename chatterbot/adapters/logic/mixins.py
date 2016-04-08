@@ -1,8 +1,4 @@
 class TieBreaking(object):
-    """
-    TieBreaking determines which response should be used in the event
-    that multiple responses are generated within a logic adapter.
-    """
 
     def break_tie(self, statement_list, method):
 

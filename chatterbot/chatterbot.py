@@ -1,15 +1,14 @@
-from .adapters.exceptions import UnknownAdapterTypeException
-from .adapters.storage import StorageAdapter
-from .adapters.logic import LogicAdapter, MultiLogicAdapter
-from .adapters.io import IOAdapter, MultiIOAdapter
-from .utils.module_loading import import_module
+from .adapters import Adaptation
 from .conversation import Statement
+import time
 
-
-class ChatBot(object):
+class ChatBot(Adaptation):
 
     def __init__(self, name, **kwargs):
+        super(ChatBot, self).__init__(**kwargs)
+
         kwargs["name"] = name
+        self.recent_statements = []
 
         storage_adapter = kwargs.get("storage_adapter",
             "chatterbot.adapters.storage.JsonDatabaseAdapter"
@@ -31,15 +30,6 @@ class ChatBot(object):
             io_adapter
         ])
 
-        self.recent_statements = []
-        self.storage_adapters = []
-
-        self.logic = MultiLogicAdapter(**kwargs)
-        self.io = MultiIOAdapter(**kwargs)
-
-        # Add required system adapter
-        self.add_adapter("chatterbot.adapters.logic.NoKnowledgeAdapter")
-
         self.add_adapter(storage_adapter, **kwargs)
 
         for adapter in io_adapters:
@@ -48,29 +38,14 @@ class ChatBot(object):
         for adapter in logic_adapters:
             self.add_adapter(adapter, **kwargs)
 
-        # Share context information such as the name, the current conversation,
-        # or access to other adapters with each of the adapters
         self.storage.set_context(self)
         self.logic.set_context(self)
         self.io.set_context(self)
+        self.hash_list = None
 
     @property
     def storage(self):
         return self.storage_adapters[0]
-
-    def add_adapter(self, adapter, **kwargs):
-        NewAdapter = import_module(adapter)
-
-        adapter = NewAdapter(**kwargs)
-
-        if issubclass(NewAdapter, StorageAdapter):
-            self.storage_adapters.append(adapter)
-        elif issubclass(NewAdapter, LogicAdapter):
-            self.logic.add_adapter(adapter)
-        elif issubclass(NewAdapter, IOAdapter):
-            self.io.add_adapter(adapter)
-        else:
-            raise UnknownAdapterTypeException()
 
     def get_last_statement(self):
         """
@@ -90,10 +65,10 @@ class ChatBot(object):
         input_statement = Statement(input_text)
 
         # Select a response to the input statement
-        confidence, response = self.logic.process(input_statement)
-
+        self.hash_list, confidence, response = self.logic.process(input_statement, self.hash_list)
+                
         existing_statement = self.storage.find(input_statement.text)
-
+        
         if existing_statement:
             input_statement = existing_statement
 
@@ -104,7 +79,7 @@ class ChatBot(object):
 
         # Update the database after selecting a response
         self.storage.update(input_statement)
-
+        
         self.recent_statements.append(response)
 
         # Process the response output with the IO adapter
